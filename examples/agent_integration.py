@@ -65,7 +65,7 @@ async def main():
         beta_use_converse_api=True,
     )
 
-    # Create agent graph with Voicebox tools (LangChain 1.0+ API)
+    # Create agent graph with Voicebox tools
     agent = create_agent(
         model=llm,
         tools=tools,

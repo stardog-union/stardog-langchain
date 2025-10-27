@@ -39,8 +39,10 @@ async def example_basic_runnable():
         {"question": "How many aerodromes are there in FL?"}
     )
 
-    print(f"Answer: {result['answer']}")
-    print(f"Query: {result['sparql_query']}\n")
+    if result["answer"]:
+        print(f"Answer: {result['answer']}")
+    else:
+        print("Answer not found, please debug your application setup.")
 
 
 async def example_explicit_client():
@@ -51,15 +53,16 @@ async def example_explicit_client():
     api_token = os.getenv("SD_VOICEBOX_API_TOKEN")
     client = VoiceboxClient(
         api_token=api_token,
-        client_id="custom-app",  # Custom client identifier
+        client_id="custom-app",
     )
 
     # Pass client to runnable
     ask_runnable = VoiceboxAskRunnable(client=client)
     result = await ask_runnable.ainvoke({"question": "Which airports are in Texas?"})
-
-    print(f"Answer: {result['answer']}")
-    print(f"Query: {result['sparql_query']}\n")
+    if result["answer"]:
+        print(f"Answer: {result['answer']}")
+    else:
+        print("Answer not found, please debug your application setup.")
 
 
 async def example_lcel_chain():
@@ -70,12 +73,11 @@ async def example_lcel_chain():
     chain = (
         RunnablePassthrough()
         | VoiceboxAskRunnable()  # Reads from environment
-        | (lambda x: f"Answer: {x['answer']}\n\nQuery used: {x['sparql_query']}")
+        | (lambda x: f"Answer: {x['answer']}\n\nInternal Conversation ID: {x['conversation_id']}")
     )
 
     result = await chain.ainvoke({"question": "Show me airports in Texas"})
     print(result)
-    print()
 
 
 async def main():
