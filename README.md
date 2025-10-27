@@ -24,7 +24,6 @@ LangChain integration for Stardog Voicebox - enabling natural language querying 
   - [VoiceboxAskRunnable](#voiceboxaskrunnable)
   - [VoiceboxAskTool](#voiceboxasktool)
   - [VoiceboxClient](#voiceboxclient)
-  - [Configuration](#configuration)
 - [Examples](#examples)
 - [Development](#development)
 - [Contributing](#contributing)
@@ -235,59 +234,6 @@ client = VoiceboxClient(
 - `async_ask(question, conversation_id=None)` / `ask(...)` - Ask a question
 - `async_generate_query(question, conversation_id=None)` / `generate_query(...)` - Generate SPARQL query
 
-### Configuration
-
-#### Initialization Patterns
-
-The library provides different initialization patterns depending on whether you're using Tools or Runnables:
-
-**Tools: Environment Variables Only**
-
-Tools are designed for agent workflows and only support environment variable initialization:
-
-```python
-from stardog_voicebox_langchain import VoiceboxAskTool
-
-# Automatically loads from SD_VOICEBOX_API_TOKEN
-tool = VoiceboxAskTool()
-```
-
-**Runnables: Both Patterns Supported**
-
-Runnables offer flexibility with two initialization patterns:
-
-**Pattern 1: Auto-load from Environment (Simple)**
-
-```python
-from stardog_voicebox_langchain import VoiceboxAskRunnable
-
-# Automatically loads from SD_VOICEBOX_API_TOKEN
-runnable = VoiceboxAskRunnable()
-```
-
-**Pattern 2: Explicit Client (Advanced)**
-
-```python
-from stardog_voicebox_langchain import VoiceboxClient, VoiceboxAskRunnable
-
-# Create client for custom configuration
-client = VoiceboxClient.from_env(
-    client_id="my-app",           # Optional: identify your application
-    endpoint="custom-endpoint"     # Optional: custom API endpoint
-)
-runnable = VoiceboxAskRunnable(client=client)
-```
-
-#### Environment Variables
-
-| Variable | Description | Required | Default |
-|----------|-------------|----------|---------|
-| `SD_VOICEBOX_API_TOKEN` | Voicebox API token | Yes* | None |
-| `SD_VOICEBOX_CLIENT_ID` | Client identifier | No | `VBX-LANGCHAIN` |
-| `SD_CLOUD_ENDPOINT` | Custom API endpoint | No | `https://cloud.stardog.com/api` |
-
-\* Required when using auto-load pattern
-
 ## Examples
 
 Check out the [`examples/`](examples/) directory for basic examples on how to use the library:
@@ -308,7 +254,7 @@ cd voicebox-langchain-integration
 make install-dev
 ```
 
-Common development utility commands:
+Common development commands:
 
 ```bash
 # Run tests
@@ -320,21 +266,14 @@ make test-cov
 # Format code
 make format
 
-# Run all CI checks
-make ci
-```
-
-### Code Quality
-
-```bash
-# Format with black and isort
-make format
-
 # Type checking
 make type-check
 
 # Linting
 make lint
+
+# Run all CI checks (format, type-check, lint, test)
+make ci
 ```
 
 ## Contributing
