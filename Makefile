@@ -57,8 +57,8 @@ clean: ## Clean up generated files
 build: ## Build distribution packages
 	uv build
 
-publish: build ## Publish to PyPI (requires credentials)
+publish: build ## Publish to PyPI (requires API token)
 	uv publish
 
-publish-test: build ## Publish to TestPyPI (requires credentials)
+publish-test: build ## Publish to TestPyPI (requires API token)
 	uv publish --publish-url https://test.pypi.org/legacy/
