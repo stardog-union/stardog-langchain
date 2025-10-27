@@ -135,7 +135,7 @@ class VoiceboxClient:
             }
         except Exception as e:
             raise VoiceboxAPIError(
-                f"Failed to retrieve Voicebox settings: {str(e)}", original_exception=e
+                f"Failed to retrieve Voicebox settings: {str(e)}", exception=e
             ) from e
 
     async def async_ask(
@@ -178,7 +178,7 @@ class VoiceboxClient:
             raise
         except Exception as e:
             raise VoiceboxAPIError(
-                f"Failed to ask question: {str(e)}", original_exception=e
+                f"Failed to ask question: {str(e)}", exception=e
             ) from e
 
     async def async_generate_query(
@@ -221,7 +221,7 @@ class VoiceboxClient:
             raise
         except Exception as e:
             raise VoiceboxAPIError(
-                f"Failed to generate query: {str(e)}", original_exception=e
+                f"Failed to generate query: {str(e)}", exception=e
             ) from e
 
     # Synchronous methods
@@ -248,7 +248,7 @@ class VoiceboxClient:
             }
         except Exception as e:
             raise VoiceboxAPIError(
-                f"Failed to retrieve Voicebox settings: {str(e)}", original_exception=e
+                f"Failed to retrieve Voicebox settings: {str(e)}", exception=e
             ) from e
 
     def ask(
@@ -293,7 +293,7 @@ class VoiceboxClient:
             raise
         except Exception as e:
             raise VoiceboxAPIError(
-                f"Failed to ask question: {str(e)}", original_exception=e
+                f"Failed to ask question: {str(e)}", exception=e
             ) from e
 
     def generate_query(
@@ -337,5 +337,5 @@ class VoiceboxClient:
             raise
         except Exception as e:
             raise VoiceboxAPIError(
-                f"Failed to generate query: {str(e)}", original_exception=e
+                f"Failed to generate query: {str(e)}", exception=e
             ) from e

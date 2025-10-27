@@ -1,17 +1,15 @@
 class VoiceboxException(Exception):
     """Base exception for all Voicebox-related errors."""
 
-    def __init__(
-        self, message: str, original_exception: Exception | None = None
-    ) -> None:
+    def __init__(self, message: str, exception: Exception | None = None) -> None:
         """Initialize the exception.
 
         Args:
             message: Error message describing what went wrong
-            original_exception: The original exception that was caught (if any)
+            exception: The original exception that was caught (if any)
         """
         self.message = message
-        self.original_exception = original_exception
+        self.original_exception = exception
         super().__init__(self.message)
 
 

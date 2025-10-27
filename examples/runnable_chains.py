@@ -73,7 +73,9 @@ async def example_lcel_chain():
     chain = (
         RunnablePassthrough()
         | VoiceboxAskRunnable()  # Reads from environment
-        | (lambda x: f"Answer: {x['answer']}\n\nInternal Conversation ID: {x['conversation_id']}")
+        | (
+            lambda x: f"Answer: {x['answer']}\n\nInternal Conversation ID: {x['conversation_id']}"
+        )
     )
 
     result = await chain.ainvoke({"question": "Show me airports in Texas"})
