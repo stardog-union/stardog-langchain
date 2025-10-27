@@ -96,8 +96,7 @@ def mock_cloud_client(
 
 @pytest.fixture
 def voicebox_client(mock_cloud_client):
-    """Create a VoiceboxClient with mocked backend
-    """
+    """Create a VoiceboxClient with mocked backend"""
     return VoiceboxClient(
         api_token="test-token",
         client_id="test-client",

@@ -71,20 +71,13 @@ class VoiceboxSettingsTool(BaseTool):
         client = VoiceboxClient.from_env()
         self._runnable = VoiceboxSettingsRunnable(client)
 
-    @property
-    def runnable(self) -> VoiceboxSettingsRunnable:
-        """Get the runnable instance (guaranteed non-None after initialization)."""
-        if self._runnable is None:
-            raise RuntimeError("Runnable not initialized")
-        return self._runnable
-
     def _run(self) -> dict[str, Any]:
         """Execute the tool synchronously."""
-        return self.runnable.invoke({})
+        return self._runnable.invoke({})
 
     async def _arun(self) -> dict[str, Any]:
         """Execute the tool asynchronously."""
-        return await self.runnable.ainvoke({})
+        return await self._runnable.ainvoke({})
 
 
 class VoiceboxAskTool(BaseTool):
@@ -120,20 +113,13 @@ class VoiceboxAskTool(BaseTool):
         client = VoiceboxClient.from_env()
         self._runnable = VoiceboxAskRunnable(client)
 
-    @property
-    def runnable(self) -> VoiceboxAskRunnable:
-        """Get the runnable instance (guaranteed non-None after initialization)."""
-        if self._runnable is None:
-            raise RuntimeError("Runnable not initialized")
-        return self._runnable
-
     def _run(
         self,
         question: str,
         conversation_id: Optional[str] = None,
     ) -> dict[str, Any]:
         """Execute the tool synchronously."""
-        return self.runnable.invoke(
+        return self._runnable.invoke(
             {"question": question, "conversation_id": conversation_id}
         )
 
@@ -143,7 +129,7 @@ class VoiceboxAskTool(BaseTool):
         conversation_id: Optional[str] = None,
     ) -> dict[str, Any]:
         """Execute the tool asynchronously."""
-        return await self.runnable.ainvoke(
+        return await self._runnable.ainvoke(
             {"question": question, "conversation_id": conversation_id}
         )
 
@@ -181,20 +167,13 @@ class VoiceboxGenerateQueryTool(BaseTool):
         client = VoiceboxClient.from_env()
         self._runnable = VoiceboxGenerateQueryRunnable(client)
 
-    @property
-    def runnable(self) -> VoiceboxGenerateQueryRunnable:
-        """Get the runnable instance (guaranteed non-None after initialization)."""
-        if self._runnable is None:
-            raise RuntimeError("Runnable not initialized")
-        return self._runnable
-
     def _run(
         self,
         question: str,
         conversation_id: Optional[str] = None,
     ) -> dict[str, Any]:
         """Execute the tool synchronously."""
-        return self.runnable.invoke(
+        return self._runnable.invoke(
             {"question": question, "conversation_id": conversation_id}
         )
 
@@ -204,6 +183,6 @@ class VoiceboxGenerateQueryTool(BaseTool):
         conversation_id: Optional[str] = None,
     ) -> dict[str, Any]:
         """Execute the tool asynchronously."""
-        return await self.runnable.ainvoke(
+        return await self._runnable.ainvoke(
             {"question": question, "conversation_id": conversation_id}
         )

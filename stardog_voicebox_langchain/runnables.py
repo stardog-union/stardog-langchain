@@ -27,16 +27,10 @@ class VoiceboxSettingsRunnable(Runnable[dict[str, Any], dict[str, Any]]):
 
     def __init__(self, client: Optional[VoiceboxClient] = None) -> None:
         super().__init__()
-        self._client: Optional[VoiceboxClient] = client
-        if self._client is None:
+        if client is None:
             self._client = VoiceboxClient.from_env()
-
-    @property
-    def client(self) -> VoiceboxClient:
-        """Get the client instance (guaranteed non-None after initialization)."""
-        if self._client is None:
-            raise RuntimeError("Client not initialized")
-        return self._client
+        else:
+            self._client = client
 
     def invoke(
         self,
@@ -54,7 +48,7 @@ class VoiceboxSettingsRunnable(Runnable[dict[str, Any], dict[str, Any]]):
         Returns:
             Dictionary containing Voicebox application settings
         """
-        return self.client.get_settings()
+        return self._client.get_settings()
 
     async def ainvoke(
         self,
@@ -72,7 +66,7 @@ class VoiceboxSettingsRunnable(Runnable[dict[str, Any], dict[str, Any]]):
         Returns:
             Dictionary containing Voicebox application settings
         """
-        return await self.client.async_get_settings()
+        return await self._client.async_get_settings()
 
 
 class VoiceboxAskRunnable(Runnable[dict[str, Any], dict[str, Any]]):
@@ -98,16 +92,10 @@ class VoiceboxAskRunnable(Runnable[dict[str, Any], dict[str, Any]]):
     def __init__(self, client: Optional[VoiceboxClient] = None) -> None:
         """Initialize the runnable with a Voicebox client or from environment."""
         super().__init__()
-        self._client: Optional[VoiceboxClient] = client
-        if self._client is None:
+        if client is None:
             self._client = VoiceboxClient.from_env()
-
-    @property
-    def client(self) -> VoiceboxClient:
-        """Get the client instance (guaranteed non-None after initialization)."""
-        if self._client is None:
-            raise RuntimeError("Client not initialized")
-        return self._client
+        else:
+            self._client = client
 
     def invoke(
         self,
@@ -132,7 +120,7 @@ class VoiceboxAskRunnable(Runnable[dict[str, Any], dict[str, Any]]):
             raise ValueError("Input must contain a 'question' key")
 
         conversation_id = input.get("conversation_id")
-        return self.client.ask(question=question, conversation_id=conversation_id)
+        return self._client.ask(question=question, conversation_id=conversation_id)
 
     async def ainvoke(
         self,
@@ -157,7 +145,7 @@ class VoiceboxAskRunnable(Runnable[dict[str, Any], dict[str, Any]]):
             raise ValueError("Input must contain a 'question' key")
 
         conversation_id = input.get("conversation_id")
-        return await self.client.async_ask(
+        return await self._client.async_ask(
             question=question, conversation_id=conversation_id
         )
 
@@ -185,16 +173,10 @@ class VoiceboxGenerateQueryRunnable(Runnable[dict[str, Any], dict[str, Any]]):
     def __init__(self, client: Optional[VoiceboxClient] = None) -> None:
         """Initialize the runnable with a Voicebox client or from environment."""
         super().__init__()
-        self._client: Optional[VoiceboxClient] = client
-        if self._client is None:
+        if client is None:
             self._client = VoiceboxClient.from_env()
-
-    @property
-    def client(self) -> VoiceboxClient:
-        """Get the client instance (guaranteed non-None after initialization)."""
-        if self._client is None:
-            raise RuntimeError("Client not initialized")
-        return self._client
+        else:
+            self._client = client
 
     def invoke(
         self,
@@ -219,7 +201,7 @@ class VoiceboxGenerateQueryRunnable(Runnable[dict[str, Any], dict[str, Any]]):
             raise ValueError("Input must contain a 'question' key")
 
         conversation_id = input.get("conversation_id")
-        return self.client.generate_query(
+        return self._client.generate_query(
             question=question, conversation_id=conversation_id
         )
 
@@ -246,6 +228,6 @@ class VoiceboxGenerateQueryRunnable(Runnable[dict[str, Any], dict[str, Any]]):
             raise ValueError("Input must contain a 'question' key")
 
         conversation_id = input.get("conversation_id")
-        return await self.client.async_generate_query(
+        return await self._client.async_generate_query(
             question=question, conversation_id=conversation_id
         )
