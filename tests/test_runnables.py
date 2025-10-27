@@ -3,10 +3,22 @@
 import pytest
 
 from stardog_voicebox_langchain import (
+    ENV_VOICEBOX_API_TOKEN,
     VoiceboxAskRunnable,
     VoiceboxGenerateQueryRunnable,
     VoiceboxSettingsRunnable,
 )
+
+
+@pytest.fixture
+def setup_env_vars(monkeypatch, mock_cloud_client):
+    """Set up environment variables for runnable tests.
+
+    Note: mock_cloud_client is passed to ensure mocks are active.
+    """
+    monkeypatch.setenv(ENV_VOICEBOX_API_TOKEN, "test-token")
+    monkeypatch.setenv("SD_VOICEBOX_CLIENT_ID", "test-client")
+    monkeypatch.setenv("SD_CLOUD_ENDPOINT", "https://test.stardog.com/api")
 
 
 class TestVoiceboxSettingsRunnable:
@@ -40,7 +52,6 @@ class TestVoiceboxAskRunnable:
         result = await runnable.ainvoke({"question": sample_question})
 
         assert "answer" in result
-        assert "sparql_query" in result
         assert "conversation_id" in result
 
     @pytest.mark.asyncio
@@ -77,8 +88,8 @@ class TestVoiceboxAskRunnable:
             runnable.invoke({"wrong_key": "value"})
 
 
-class TestVoiceboxQueryRunnable:
-    """Tests for VoiceboxQueryRunnable."""
+class TestVoiceboxGenerateQueryRunnable:
+    """Tests for VoiceboxGenerateQueryRunnable."""
 
     @pytest.mark.asyncio
     async def test_ainvoke(self, voicebox_client, sample_question):
@@ -116,3 +127,55 @@ class TestVoiceboxQueryRunnable:
 
         assert "sparql_query" in result
         assert "interpreted_question" in result
+
+
+class TestRunnableEnvironmentVariableInitialization:
+    """Tests for Runnable initialization from environment variables."""
+
+    @pytest.mark.asyncio
+    async def test_settings_runnable_from_env(self, setup_env_vars):
+        """Test VoiceboxSettingsRunnable can be created from env vars."""
+        runnable = VoiceboxSettingsRunnable()  # No client parameter
+        result = await runnable.ainvoke({})
+
+        assert result["name"] == "test-voicebox-app"
+        assert result["database"] == "test-database"
+
+    @pytest.mark.asyncio
+    async def test_ask_runnable_from_env(self, setup_env_vars, sample_question):
+        """Test VoiceboxAskRunnable can be created from env vars."""
+        runnable = VoiceboxAskRunnable()  # No client parameter
+        result = await runnable.ainvoke({"question": sample_question})
+        assert "answer" in result
+
+    @pytest.mark.asyncio
+    async def test_query_runnable_from_env(self, setup_env_vars, sample_question):
+        """Test VoiceboxGenerateQueryRunnable can be created from env vars."""
+        runnable = VoiceboxGenerateQueryRunnable()  # No client parameter
+        result = await runnable.ainvoke({"question": sample_question})
+
+        assert "sparql_query" in result
+        assert "interpreted_question" in result
+
+    def test_runnable_requires_env_var_or_client(self, monkeypatch, mock_cloud_client):
+        """Test that runnable raises error when neither env var nor client provided."""
+        # Ensure env var is not set
+        monkeypatch.delenv(ENV_VOICEBOX_API_TOKEN, raising=False)
+
+        # Should raise error when trying to create runnable without client
+        with pytest.raises(Exception) as exc_info:
+            VoiceboxAskRunnable()
+
+        assert ENV_VOICEBOX_API_TOKEN in str(exc_info.value)
+
+    @pytest.mark.asyncio
+    async def test_explicit_client_takes_precedence(
+        self, setup_env_vars, voicebox_client, sample_question
+    ):
+        """Test that explicit client parameter takes precedence over env vars."""
+        # Both env vars and explicit client are available
+        # Explicit client should be used
+        runnable = VoiceboxAskRunnable(client=voicebox_client)
+        result = await runnable.ainvoke({"question": sample_question})
+
+        assert "answer" in result

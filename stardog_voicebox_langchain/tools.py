@@ -1,8 +1,7 @@
 from typing import Any, Optional, Type
 
-from langchain_core.callbacks import CallbackManagerForToolRun
 from langchain_core.tools import BaseTool
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, PrivateAttr
 
 from .runnables import (
     VoiceboxAskRunnable,
@@ -30,7 +29,7 @@ class VoiceboxAskInput(BaseModel):
 
 
 class VoiceboxGenerateQueryInput(BaseModel):
-    """Input schema for VoiceboxQueryTool."""
+    """Input schema for VoiceboxGenerateQueryTool."""
 
     question: str = Field(
         description="Natural language question to convert to a SPARQL query"
@@ -46,42 +45,44 @@ class VoiceboxSettingsTool(BaseTool):
     This tool retrieves the configuration and metadata for a Voicebox application.
     It can be used in LangChain agents to understand the available data sources.
 
-    Args:
-        client: VoiceboxClient instance
+    Credentials are loaded from environment variables:
+        - SD_VOICEBOX_API_TOKEN (required)
+        - SD_VOICEBOX_CLIENT_ID (optional, defaults to VBX-LANGCHAIN)
+        - SD_CLOUD_ENDPOINT (optional, defaults to https://cloud.stardog.com/api)
 
     Example:
-        >>> client = VoiceboxClient(api_token="your-token")
-        >>> tool = VoiceboxSettingsTool(client)
-        >>> result = tool.invoke({})
+        >>> tool = VoiceboxSettingsTool()
+        >>> settings = await tool._arun()
+        >>> print(settings["database"])
     """
 
     name: str = "voicebox_settings"
     description: str = (
-        "Retrieve Voicebox application settings including database name, "
-        "model name, named graphs, and reasoning configuration. "
-        "Use this to understand what data sources are available."
+        "Retrieve Voicebox application settings like database name, "
+        "model name, named graphs, and reasoning configuration"
     )
     args_schema: Type[BaseModel] = VoiceboxSettingsInput
 
-    client: VoiceboxClient
-    runnable: VoiceboxSettingsRunnable
+    _runnable: VoiceboxSettingsRunnable = PrivateAttr()
 
-    def __init__(self, client: VoiceboxClient, **kwargs: Any) -> None:
-        """Initialize the tool with a Voicebox client."""
-        runnable = VoiceboxSettingsRunnable(client)
-        super().__init__(client=client, runnable=runnable, **kwargs)
+    def __init__(self, **kwargs: Any) -> None:
+        """Initialize the tool from environment variables."""
+        super().__init__(**kwargs)
+        client = VoiceboxClient.from_env()
+        self._runnable = VoiceboxSettingsRunnable(client)
 
-    def _run(
-        self,
-        run_manager: Optional[CallbackManagerForToolRun] = None,
-    ) -> dict[str, Any]:
+    @property
+    def runnable(self) -> VoiceboxSettingsRunnable:
+        """Get the runnable instance (guaranteed non-None after initialization)."""
+        if self._runnable is None:
+            raise RuntimeError("Runnable not initialized")
+        return self._runnable
+
+    def _run(self) -> dict[str, Any]:
         """Execute the tool synchronously."""
         return self.runnable.invoke({})
 
-    async def _arun(
-        self,
-        run_manager: Optional[CallbackManagerForToolRun] = None,
-    ) -> dict[str, Any]:
+    async def _arun(self) -> dict[str, Any]:
         """Execute the tool asynchronously."""
         return await self.runnable.ainvoke({})
 
@@ -89,40 +90,47 @@ class VoiceboxSettingsTool(BaseTool):
 class VoiceboxAskTool(BaseTool):
     """Tool for asking questions to Voicebox.
 
-    This tool asks natural language questions and receives AI-generated answers
+    This tool asks natural language questions and receives answers
     from Stardog Voicebox. It's ideal for question-answering tasks in agents.
 
-    Args:
-        client: VoiceboxClient instance
+    Credentials are loaded from environment variables:
+        - SD_VOICEBOX_API_TOKEN (required)
+        - SD_VOICEBOX_CLIENT_ID (optional, defaults to VBX-LANGCHAIN)
+        - SD_CLOUD_ENDPOINT (optional, defaults to https://cloud.stardog.com/api)
 
     Example:
-        >>> client = VoiceboxClient(api_token="your-token")
-        >>> tool = VoiceboxAskTool(client)
-        >>> result = tool.invoke({"question": "What flights are delayed?"})
+        >>> tool = VoiceboxAskTool()
+        >>> result = await tool._arun(question="What flights are delayed?")
+        >>> print(result["answer"])
     """
 
     name: str = "voicebox_ask"
     description: str = (
         "Ask a natural language question to Stardog Voicebox and get an answer. "
-        "This tool queries the knowledge graph and returns a natural language answer "
-        "along with the generated SPARQL query. Supports multi-turn conversations "
-        "by passing conversation_id."
+        "Conversation_id is to be left blank for new conversation (system creates one automatically) "
+        "but needs to be supplied for multi-turn conversations to maintain the same conversation history/thread"
     )
     args_schema: Type[BaseModel] = VoiceboxAskInput
 
-    client: VoiceboxClient
-    runnable: VoiceboxAskRunnable
+    _runnable: VoiceboxAskRunnable = PrivateAttr()
 
-    def __init__(self, client: VoiceboxClient, **kwargs: Any) -> None:
-        """Initialize the tool with a Voicebox client."""
-        runnable = VoiceboxAskRunnable(client)
-        super().__init__(client=client, runnable=runnable, **kwargs)
+    def __init__(self, **kwargs: Any) -> None:
+        """Initialize the tool from environment variables."""
+        super().__init__(**kwargs)
+        client = VoiceboxClient.from_env()
+        self._runnable = VoiceboxAskRunnable(client)
+
+    @property
+    def runnable(self) -> VoiceboxAskRunnable:
+        """Get the runnable instance (guaranteed non-None after initialization)."""
+        if self._runnable is None:
+            raise RuntimeError("Runnable not initialized")
+        return self._runnable
 
     def _run(
         self,
         question: str,
         conversation_id: Optional[str] = None,
-        run_manager: Optional[CallbackManagerForToolRun] = None,
     ) -> dict[str, Any]:
         """Execute the tool synchronously."""
         return self.runnable.invoke(
@@ -133,7 +141,6 @@ class VoiceboxAskTool(BaseTool):
         self,
         question: str,
         conversation_id: Optional[str] = None,
-        run_manager: Optional[CallbackManagerForToolRun] = None,
     ) -> dict[str, Any]:
         """Execute the tool asynchronously."""
         return await self.runnable.ainvoke(
@@ -145,39 +152,46 @@ class VoiceboxGenerateQueryTool(BaseTool):
     """Tool for generating SPARQL queries from natural language.
 
     This tool generates SPARQL queries from natural language questions
-    without executing them. Useful when you want to inspect or modify
-    queries before execution.
+    without executing them.
 
-    Args:
-        client: VoiceboxClient instance
+    Credentials are loaded from environment variables:
+        - SD_VOICEBOX_API_TOKEN (required)
+        - SD_VOICEBOX_CLIENT_ID (optional, defaults to VBX-LANGCHAIN)
+        - SD_CLOUD_ENDPOINT (optional, defaults to https://cloud.stardog.com/api)
 
     Example:
-        >>> client = VoiceboxClient(api_token="your-token")
-        >>> tool = VoiceboxGenerateQueryTool(client)
-        >>> result = tool.invoke({"question": "Show me all airports"})
+        >>> tool = VoiceboxGenerateQueryTool()
+        >>> result = await tool._arun(question="Show me all airports")
+        >>> print(result["sparql_query"])
     """
 
     name: str = "voicebox_generate_query"
     description: str = (
         "Generate a SPARQL query from a natural language question without executing it. "
-        "This is useful when you want to see the query that would be generated "
-        "or when you want to execute it yourself with custom parameters."
+        "Conversation_id is to be left blank for new conversation (system creates one automatically) "
+        "but needs to be supplied for multi-turn conversations to maintain the same conversation history/thread"
     )
     args_schema: Type[BaseModel] = VoiceboxGenerateQueryInput
 
-    client: VoiceboxClient
-    runnable: VoiceboxGenerateQueryRunnable
+    _runnable: VoiceboxGenerateQueryRunnable = PrivateAttr()
 
-    def __init__(self, client: VoiceboxClient, **kwargs: Any) -> None:
-        """Initialize the tool with a Voicebox client."""
-        runnable = VoiceboxGenerateQueryRunnable(client)
-        super().__init__(client=client, runnable=runnable, **kwargs)
+    def __init__(self, **kwargs: Any) -> None:
+        """Initialize the tool from environment variables."""
+        super().__init__(**kwargs)
+        client = VoiceboxClient.from_env()
+        self._runnable = VoiceboxGenerateQueryRunnable(client)
+
+    @property
+    def runnable(self) -> VoiceboxGenerateQueryRunnable:
+        """Get the runnable instance (guaranteed non-None after initialization)."""
+        if self._runnable is None:
+            raise RuntimeError("Runnable not initialized")
+        return self._runnable
 
     def _run(
         self,
         question: str,
         conversation_id: Optional[str] = None,
-        run_manager: Optional[CallbackManagerForToolRun] = None,
     ) -> dict[str, Any]:
         """Execute the tool synchronously."""
         return self.runnable.invoke(
@@ -188,7 +202,6 @@ class VoiceboxGenerateQueryTool(BaseTool):
         self,
         question: str,
         conversation_id: Optional[str] = None,
-        run_manager: Optional[CallbackManagerForToolRun] = None,
     ) -> dict[str, Any]:
         """Execute the tool asynchronously."""
         return await self.runnable.ainvoke(

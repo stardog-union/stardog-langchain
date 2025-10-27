@@ -1,26 +1,19 @@
 """Stardog Voicebox LangChain Integration.
 
 This package provides LangChain integration for Stardog Voicebox, enabling
-natural language querying of knowledge graphs through LangChain tools,
-runnables, and chains.
-
-Quick Start:
-    >>> from stardog_voicebox_langchain import VoiceboxClient, VoiceboxAskTool
-    >>> client = VoiceboxClient(api_token="your-token")
-    >>> tool = VoiceboxAskTool(client)
-    >>> result = tool.invoke({"question": "What flights are delayed?"})
-
-Components:
-    - VoiceboxClient: Client for connecting to Stardog Voicebox API
-    - Runnables: VoiceboxSettingsRunnable, VoiceboxAskRunnable, VoiceboxQueryRunnable
-    - Tools: VoiceboxSettingsTool, VoiceboxAskTool, VoiceboxQueryTool
+natural language querying over your enterprise data using LangChain runnables and tools.
 """
 
-from .constants import DEFAULT_CLIENT_ID, DEFAULT_STARDOG_CLOUD_ENDPOINT, Headers
+from .constants import (
+    DEFAULT_CLIENT_ID,
+    DEFAULT_STARDOG_CLOUD_ENDPOINT,
+    ENV_CLOUD_ENDPOINT,
+    ENV_VOICEBOX_API_TOKEN,
+    ENV_VOICEBOX_CLIENT_ID,
+)
 from .exceptions import (
     VoiceboxAPIError,
     VoiceboxAuthenticationError,
-    VoiceboxConnectionError,
     VoiceboxException,
     VoiceboxValidationError,
 )
@@ -50,11 +43,12 @@ __all__ = [
     "VoiceboxAuthenticationError",
     "VoiceboxAPIError",
     "VoiceboxValidationError",
-    "VoiceboxConnectionError",
     # Constants
     "DEFAULT_STARDOG_CLOUD_ENDPOINT",
     "DEFAULT_CLIENT_ID",
-    "Headers",
+    "ENV_VOICEBOX_API_TOKEN",
+    "ENV_VOICEBOX_CLIENT_ID",
+    "ENV_CLOUD_ENDPOINT",
     # Version
     "__version__",
 ]

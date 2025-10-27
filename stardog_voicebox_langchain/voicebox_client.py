@@ -4,7 +4,13 @@ from typing import Any, Optional
 from stardog.cloud.client import AsyncClient as StardogAsyncClient
 from stardog.cloud.client import Client as StardogClient
 
-from .constants import DEFAULT_CLIENT_ID, DEFAULT_STARDOG_CLOUD_ENDPOINT
+from .constants import (
+    DEFAULT_CLIENT_ID,
+    DEFAULT_STARDOG_CLOUD_ENDPOINT,
+    ENV_CLOUD_ENDPOINT,
+    ENV_VOICEBOX_API_TOKEN,
+    ENV_VOICEBOX_CLIENT_ID,
+)
 from .exceptions import (
     VoiceboxAPIError,
     VoiceboxAuthenticationError,
@@ -45,6 +51,65 @@ class VoiceboxClient:
         # Initialize both sync and async Stardog Cloud clients
         self._sync_cloud_client = StardogClient(base_url=self.endpoint)
         self._async_cloud_client = StardogAsyncClient(base_url=self.endpoint)
+
+    @classmethod
+    def from_env(
+        cls,
+        client_id: Optional[str] = None,
+        endpoint: Optional[str] = None,
+    ) -> "VoiceboxClient":
+        """Create a VoiceboxClient from environment variables.
+
+        This is a convenience method for creating a client using configuration
+        from environment variables. Useful for agent workflows and production
+        deployments.
+
+        Environment Variables:
+            SD_VOICEBOX_API_TOKEN: Required. Voicebox application API token
+            SD_VOICEBOX_CLIENT_ID: Optional. Client identifier (default: VBX-LANGCHAIN)
+            SD_CLOUD_ENDPOINT: Optional. Stardog Cloud endpoint (default: https://cloud.stardog.com/api)
+
+        Args:
+            client_id: Override for client ID (takes precedence over env var)
+            endpoint: Override for endpoint (takes precedence over env var)
+
+        Returns:
+            VoiceboxClient instance configured from environment
+
+        Raises:
+            VoiceboxAuthenticationError: If SD_VOICEBOX_API_TOKEN is not set
+
+        Example:
+            >>> client = VoiceboxClient.from_env()
+            >>> # With overrides
+            >>> client = VoiceboxClient.from_env(client_id="my-app")
+        """
+        api_token = os.getenv(ENV_VOICEBOX_API_TOKEN)
+        if not api_token:
+            raise VoiceboxAuthenticationError(
+                f"Environment variable {ENV_VOICEBOX_API_TOKEN} is not set. "
+                f"Please set it to your Voicebox application API token."
+            )
+
+        # Resolve client_id with fallback to env var and default
+        resolved_client_id = (
+            client_id
+            if client_id is not None
+            else os.getenv(ENV_VOICEBOX_CLIENT_ID, DEFAULT_CLIENT_ID)
+        )
+
+        # Resolve endpoint with fallback to env var and default
+        resolved_endpoint = (
+            endpoint
+            if endpoint is not None
+            else os.getenv(ENV_CLOUD_ENDPOINT, DEFAULT_STARDOG_CLOUD_ENDPOINT)
+        )
+
+        return cls(
+            api_token=api_token,
+            client_id=resolved_client_id,
+            endpoint=resolved_endpoint,
+        )
 
     # Async methods
     async def async_get_settings(self) -> dict[str, Any]:
@@ -107,9 +172,7 @@ class VoiceboxClient:
             return {
                 "answer": answer.content,
                 "interpreted_question": answer.interpreted_question,
-                "sparql_query": answer.query,
                 "conversation_id": answer.conversation_id,
-                "message_id": answer.message_id,
             }
         except VoiceboxValidationError:
             raise
@@ -150,10 +213,9 @@ class VoiceboxClient:
                 stardog_auth_token_override=self.auth_token_override,
             )
             return {
-                "sparql_query": response.query,
+                "sparql_query": response.sparql_query,
                 "interpreted_question": response.interpreted_question,
                 "conversation_id": response.conversation_id,
-                "message_id": response.message_id,
             }
         except VoiceboxValidationError:
             raise

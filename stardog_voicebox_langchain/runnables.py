@@ -12,19 +12,31 @@ class VoiceboxSettingsRunnable(Runnable[dict[str, Any], dict[str, Any]]):
     It can be composed with other runnables in LangChain chains.
 
     Args:
-        client: VoiceboxClient instance
+        client: Optional VoiceboxClient instance. If not provided, creates one from
+                environment variables (SD_VOICEBOX_API_TOKEN, etc.)
 
-    Example:
+    Example (with client):
         >>> client = VoiceboxClient(api_token="your-token")
         >>> runnable = VoiceboxSettingsRunnable(client)
         >>> settings = await runnable.ainvoke({})
-        >>> print(settings["database"])
+
+    Example (from environment):
+        >>> runnable = VoiceboxSettingsRunnable()  # reads from env
+        >>> settings = await runnable.ainvoke({})
     """
 
-    def __init__(self, client: VoiceboxClient) -> None:
-        """Initialize the runnable with a Voicebox client."""
+    def __init__(self, client: Optional[VoiceboxClient] = None) -> None:
         super().__init__()
-        self.client = client
+        self._client: Optional[VoiceboxClient] = client
+        if self._client is None:
+            self._client = VoiceboxClient.from_env()
+
+    @property
+    def client(self) -> VoiceboxClient:
+        """Get the client instance (guaranteed non-None after initialization)."""
+        if self._client is None:
+            raise RuntimeError("Client not initialized")
+        return self._client
 
     def invoke(
         self,
@@ -70,19 +82,32 @@ class VoiceboxAskRunnable(Runnable[dict[str, Any], dict[str, Any]]):
     from Stardog Voicebox. It supports multi-turn conversations via conversation_id.
 
     Args:
-        client: VoiceboxClient instance
+        client: Optional VoiceboxClient instance. If not provided, creates one from
+                environment variables (SD_VOICEBOX_API_TOKEN, etc.)
 
-    Example:
+    Example (with client):
         >>> client = VoiceboxClient(api_token="your-token")
         >>> runnable = VoiceboxAskRunnable(client)
         >>> result = await runnable.ainvoke({"question": "What flights are delayed?"})
-        >>> print(result["answer"])
+
+    Example (from environment):
+        >>> runnable = VoiceboxAskRunnable()  # reads from env
+        >>> result = await runnable.ainvoke({"question": "What flights are delayed?"})
     """
 
-    def __init__(self, client: VoiceboxClient) -> None:
-        """Initialize the runnable with a Voicebox client."""
+    def __init__(self, client: Optional[VoiceboxClient] = None) -> None:
+        """Initialize the runnable with a Voicebox client or from environment."""
         super().__init__()
-        self.client = client
+        self._client: Optional[VoiceboxClient] = client
+        if self._client is None:
+            self._client = VoiceboxClient.from_env()
+
+    @property
+    def client(self) -> VoiceboxClient:
+        """Get the client instance (guaranteed non-None after initialization)."""
+        if self._client is None:
+            raise RuntimeError("Client not initialized")
+        return self._client
 
     def invoke(
         self,
@@ -144,19 +169,32 @@ class VoiceboxGenerateQueryRunnable(Runnable[dict[str, Any], dict[str, Any]]):
     without executing them. Useful for query inspection or custom execution.
 
     Args:
-        client: VoiceboxClient instance
+        client: Optional VoiceboxClient instance. If not provided, creates one from
+                environment variables (SD_VOICEBOX_API_TOKEN, etc.)
 
-    Example:
+    Example (with client):
         >>> client = VoiceboxClient(api_token="your-token")
         >>> runnable = VoiceboxGenerateQueryRunnable(client)
         >>> result = await runnable.ainvoke({"question": "Show me all airports"})
-        >>> print(result["sparql_query"])
+
+    Example (from environment):
+        >>> runnable = VoiceboxGenerateQueryRunnable()  # reads from env
+        >>> result = await runnable.ainvoke({"question": "Show me all airports"})
     """
 
-    def __init__(self, client: VoiceboxClient) -> None:
-        """Initialize the runnable with a Voicebox client."""
+    def __init__(self, client: Optional[VoiceboxClient] = None) -> None:
+        """Initialize the runnable with a Voicebox client or from environment."""
         super().__init__()
-        self.client = client
+        self._client: Optional[VoiceboxClient] = client
+        if self._client is None:
+            self._client = VoiceboxClient.from_env()
+
+    @property
+    def client(self) -> VoiceboxClient:
+        """Get the client instance (guaranteed non-None after initialization)."""
+        if self._client is None:
+            raise RuntimeError("Client not initialized")
+        return self._client
 
     def invoke(
         self,

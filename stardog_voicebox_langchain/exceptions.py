@@ -31,9 +31,3 @@ class VoiceboxValidationError(VoiceboxException):
     """Raised when input validation fails."""
 
     pass
-
-
-class VoiceboxConnectionError(VoiceboxException):
-    """Raised when connection to Stardog Cloud fails."""
-
-    pass

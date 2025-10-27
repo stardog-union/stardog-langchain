@@ -58,9 +58,7 @@ class TestVoiceboxClientAsyncMethods:
         result = await voicebox_client.async_ask(sample_question)
 
         assert "answer" in result
-        assert "sparql_query" in result
         assert "conversation_id" in result
-        assert "message_id" in result
         assert result["conversation_id"] == "conv-123"
 
     @pytest.mark.asyncio

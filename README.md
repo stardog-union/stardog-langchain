@@ -4,137 +4,158 @@
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-LangChain integration for Stardog Voicebox - enabling natural language querying of knowledge graphs through LangChain tools, runnables, and chains.
+LangChain integration for Stardog Voicebox - enabling natural language querying over your enterprise data using LangChain runnables and tools.
 
 ## Features
 
-- **🔧 LangChain Tools**: Ready-to-use tools for LangChain agents
-- **🔗 LCEL Runnables**: Composable runnables for building chains
-- **🔄 Async & Sync**: Full support for both async and synchronous operations
+- **LangChain Tools**: Ready-to-use tools for LangChain agents
+- **LCEL Runnables**: Composable runnables for building chains
+- **Async & Sync**: Full support for both async and synchronous operations
+
+## Table of Contents
+
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+  - [Setup Environment Variables](#setup-environment-variables)
+  - [Basic Usage with Tools](#basic-usage-with-tools)
+  - [Using Runnables in LCEL Chains](#using-runnables-in-lcel-chains)
+- [Class Reference](#class-reference)
+  - [VoiceboxAskRunnable](#voiceboxaskrunnable)
+  - [VoiceboxAskTool](#voiceboxasktool)
+  - [VoiceboxClient](#voiceboxclient)
+  - [Configuration](#configuration)
+- [Examples](#examples)
+- [Development](#development)
+- [Contributing](#contributing)
+- [General Support](#general-support)
+
+## Requirements
+
+- Python 3.12 
+- A Stardog Cloud account with a Voicebox application
+- Voicebox API token (process to obtain explained below)
+- uv: a python package manager for development and contributions ([uv](https://github.com/astral-sh/uv))
 
 ## Installation
 
 ```bash
-pip install stardog-voicebox-langchain-integration
-```
-
-For development:
-```bash
-git clone https://github.com/stardog-union/voicebox-langchain-integration.git
-cd voicebox-langchain-integration-integration
-make install-dev
+pip install stardog-voicebox-langchain
 ```
 
 ## Quick Start
 
+### Setup Environment Variables
+
+The simplest way to get started is to set your API token as an environment variable:
+
+```bash
+export SD_VOICEBOX_API_TOKEN="your-voicebox-api-token"
+```
+
+**Getting Your API Token:**
+1. Log in to [Stardog Cloud](https://cloud.stardog.com)
+2. Navigate to your Voicebox application
+3. Go to Settings → API Token
+4. Copy your application API token
+
+**Optional Environment Variables:**
+```bash
+export SD_VOICEBOX_CLIENT_ID="my-app"                      # Client identifier (default: VBX-LANGCHAIN)
+export SD_CLOUD_ENDPOINT="https://cloud.stardog.com/api"  # Custom endpoint (optional)
+```
+
 ### Basic Usage with Tools
 
+Tools are designed for agent workflows and automatically load credentials from environment variables:
+
 ```python
-from stardog_voicebox_langchain import VoiceboxClient, VoiceboxAskTool
+from stardog_voicebox_langchain import VoiceboxAskTool
 
-# Initialize client
-client = VoiceboxClient(api_token="your-voicebox-api-token")
-
-# Create a tool
-ask_tool = VoiceboxAskTool(client)
+# Tools automatically load credentials from SD_VOICEBOX_API_TOKEN
+ask_tool = VoiceboxAskTool()
 
 # Ask a question
 result = await ask_tool._arun(question="What flights are delayed?")
 print(result["answer"])
-print(result["sparql_query"])
 ```
 
-### Using with LangChain Agents
-
-```python
-from langchain.agents import AgentExecutor, create_react_agent
-from langchain_openai import ChatOpenAI
-from stardog_voicebox_langchain import VoiceboxClient, VoiceboxAskTool
-
-# Set up Voicebox tools
-client = VoiceboxClient(api_token="your-token")
-tools = [VoiceboxAskTool(client)]
-
-# Create an agent
-llm = ChatOpenAI(model="gpt-4")
-agent = create_react_agent(llm, tools, prompt)
-agent_executor = AgentExecutor(agent=agent, tools=tools)
-
-# Run the agent
-result = await agent_executor.ainvoke({
-    "input": "Query the knowledge graph for delayed flights and summarize the results"
-})
-```
+**Note**: Tools only support environment variable initialization to ensure consistent, secure configuration in agent workflows.
 
 ### Using Runnables in LCEL Chains
+
+Runnables support two initialization patterns:
+
+**Pattern 1: Auto-load from Environment (Simple)**
+
+```python
+from langchain_core.runnables import RunnablePassthrough
+from stardog_voicebox_langchain import VoiceboxAskRunnable
+
+# Automatically loads from SD_VOICEBOX_API_TOKEN
+chain = (
+    RunnablePassthrough()
+    | VoiceboxAskRunnable()
+    | (lambda x: f"Answer: {x['answer']}")
+)
+
+result = await chain.ainvoke({"question": "Show me airports in Texas"})
+```
+
+**Pattern 2: Explicit Client (Advanced)**
 
 ```python
 from langchain_core.runnables import RunnablePassthrough
 from stardog_voicebox_langchain import VoiceboxClient, VoiceboxAskRunnable
 
-client = VoiceboxClient(api_token="your-token")
+# Create client for custom configuration
+client = VoiceboxClient(
+    api_token="your-token",
+    client_id="my-app"
+)
 
-# Build a chain
 chain = (
     RunnablePassthrough()
-    | VoiceboxAskRunnable(client)
+    | VoiceboxAskRunnable(client=client)
     | (lambda x: f"Answer: {x['answer']}")
 )
 
-# Execute the chain
 result = await chain.ainvoke({"question": "Show me airports in Texas"})
 ```
 
-## Architecture
+## Class Reference
 
-The library provides three layers of abstraction:
+The library provides the following main classes:
 
-### 1. Client Layer
-`VoiceboxClient` - Core client for Stardog Voicebox API
-- Handles authentication and connection management
-- Provides async and sync methods
-- Wraps `pystardog` library
-
-### 2. Runnables Layer (Core)
-LangChain `Runnable` implementations:
+**Runnables** (for LCEL chains):
 - `VoiceboxSettingsRunnable` - Retrieve app settings
-- `VoiceboxAskRunnable` - Ask questions (with answers)
-- `VoiceboxQueryRunnable` - Generate SPARQL queries
+- `VoiceboxAskRunnable` - Ask questions and get answers
+- `VoiceboxGenerateQueryRunnable` - Generate SPARQL queries
 
-Runnables are the **core implementation** and support LCEL composition.
-
-### 3. Tools Layer (Wrapper)
-LangChain `BaseTool` implementations that wrap Runnables:
+**Tools** (for agent integration):
 - `VoiceboxSettingsTool`
 - `VoiceboxAskTool`
-- `VoiceboxQueryTool`
+- `VoiceboxGenerateQueryTool`
 
-Tools are designed for agent integration and follow the DRY principle by reusing Runnables internally.
-
-
-## API Reference
-
-### VoiceboxClient
-
-```python
-client = VoiceboxClient(
-    api_token="your-token",           # Required: Voicebox API token
-    client_id="my-app",                # Optional: Client identifier
-    endpoint="https://...",            # Optional: API endpoint
-    auth_token_override="sso-token"    # Optional: SSO auth token
-)
-```
-
-**Methods:**
-- `async_get_settings()` / `get_settings()` - Get Voicebox app settings
-- `async_ask(question, conversation_id=None)` / `ask(...)` - Ask a question
-- `async_generate_query(question, conversation_id=None)` / `generate_query(...)` - Generate SPARQL query
+**Client**:
+- `VoiceboxClient` - Core client for Stardog Voicebox API
 
 ### VoiceboxAskRunnable
 
-```python
-runnable = VoiceboxAskRunnable(client)
+**Initialization:**
 
+```python
+# From environment variables (simple)
+runnable = VoiceboxAskRunnable()
+
+# With explicit client (advanced)
+client = VoiceboxClient.from_env()
+runnable = VoiceboxAskRunnable(client=client)
+```
+
+**Usage:**
+
+```python
 # Async
 result = await runnable.ainvoke({
     "question": "Your question here",
@@ -142,7 +163,10 @@ result = await runnable.ainvoke({
 })
 
 # Sync
-result = runnable.invoke({...})
+result = runnable.invoke({
+    "question": "Your question here",
+    "conversation_id": "optional-conv-id"
+})
 ```
 
 **Output:**
@@ -158,42 +182,135 @@ result = runnable.invoke({...})
 
 ### VoiceboxAskTool
 
-```python
-tool = VoiceboxAskTool(client)
+**Initialization:**
 
+Tools only support environment variable initialization for consistent, secure agent workflows:
+
+```python
+# Automatically loads from SD_VOICEBOX_API_TOKEN
+tool = VoiceboxAskTool()
+```
+
+**Usage:**
+
+```python
 # Async
 result = await tool._arun(
     question="Your question",
-    conversation_id="optional"
+    conversation_id="optional"  # Optional: for multi-turn conversations
 )
 
 # Sync
-result = tool._run(question="Your question")
+result = tool._run(
+    question="Your question",
+    conversation_id="optional"
+)
 ```
+
+### VoiceboxClient
+
+**Initialization:**
+
+```python
+# From environment variables (recommended)
+client = VoiceboxClient.from_env()
+
+# With custom configuration
+client = VoiceboxClient.from_env(
+    client_id="my-app",           # Optional: override default client ID
+    endpoint="custom-endpoint"     # Optional: custom API endpoint
+)
+
+# Direct initialization (advanced)
+client = VoiceboxClient(
+    api_token="your-token",           # Required: Voicebox API token
+    client_id="my-app",                # Optional: Client identifier (default: VBX-LANGCHAIN)
+    endpoint="https://...",            # Optional: API endpoint
+    auth_token_override="sso-token"    # Optional: SSO auth token
+)
+```
+
+**Methods:**
+- `async_get_settings()` / `get_settings()` - Get Voicebox app settings
+- `async_ask(question, conversation_id=None)` / `ask(...)` - Ask a question
+- `async_generate_query(question, conversation_id=None)` / `generate_query(...)` - Generate SPARQL query
+
+### Configuration
+
+#### Initialization Patterns
+
+The library provides different initialization patterns depending on whether you're using Tools or Runnables:
+
+**Tools: Environment Variables Only**
+
+Tools are designed for agent workflows and only support environment variable initialization:
+
+```python
+from stardog_voicebox_langchain import VoiceboxAskTool
+
+# Automatically loads from SD_VOICEBOX_API_TOKEN
+tool = VoiceboxAskTool()
+```
+
+**Runnables: Both Patterns Supported**
+
+Runnables offer flexibility with two initialization patterns:
+
+**Pattern 1: Auto-load from Environment (Simple)**
+
+```python
+from stardog_voicebox_langchain import VoiceboxAskRunnable
+
+# Automatically loads from SD_VOICEBOX_API_TOKEN
+runnable = VoiceboxAskRunnable()
+```
+
+**Pattern 2: Explicit Client (Advanced)**
+
+```python
+from stardog_voicebox_langchain import VoiceboxClient, VoiceboxAskRunnable
+
+# Create client for custom configuration
+client = VoiceboxClient.from_env(
+    client_id="my-app",           # Optional: identify your application
+    endpoint="custom-endpoint"     # Optional: custom API endpoint
+)
+runnable = VoiceboxAskRunnable(client=client)
+```
+
+#### Environment Variables
+
+| Variable | Description | Required | Default |
+|----------|-------------|----------|---------|
+| `SD_VOICEBOX_API_TOKEN` | Voicebox API token | Yes* | None |
+| `SD_VOICEBOX_CLIENT_ID` | Client identifier | No | `VBX-LANGCHAIN` |
+| `SD_CLOUD_ENDPOINT` | Custom API endpoint | No | `https://cloud.stardog.com/api` |
+
+\* Required when using auto-load pattern
 
 ## Examples
 
-Check out the [`examples/`](examples/) directory for complete working examples:
+Check out the [`examples/`](examples/) directory for basic examples on how to use the library:
 
-- [`basic_tool_usage.py`](examples/basic_tool_usage.py) - Basic tool usage and multi-turn conversations
-- [`agent_integration.py`](examples/agent_integration.py) - Integration with LangChain ReAct agents
-- [`runnable_chains.py`](examples/runnable_chains.py) - LCEL chains and VoiceboxQAChain usage
-
-Run an example:
-```bash
-export STARDOG_VOICEBOX_API_TOKEN="your-token"
-export OPENAI_API_KEY="your-openai-key"  # For agent examples
-python examples/basic_tool_usage.py
-```
+- [`direct_tool_usage.py`](examples/direct_tool_usage.py) - Direct tool usage and multi-turn conversations
+- [`agent_integration.py`](examples/agent_integration.py) - Agent integration using AWS Bedrock
+- [`runnable_chains.py`](examples/runnable_chains.py) - LCEL chains with runnables
 
 ## Development
 
 ### Setup
 
-```bash
-# Install dependencies
-make install-dev
+Clone the repository and install dependencies:
 
+```bash
+git clone https://github.com/stardog-union/voicebox-langchain-integration.git
+cd voicebox-langchain-integration
+make install-dev
+```
+
+Common development utility commands:
+
+```bash
 # Run tests
 make test
 
@@ -205,19 +322,6 @@ make format
 
 # Run all CI checks
 make ci
-```
-
-### Running Tests
-
-```bash
-# All tests
-pytest
-
-# Specific test file
-pytest tests/test_client.py
-
-# With coverage
-pytest --cov=stardog_voicebox_langchain --cov-report=html
 ```
 
 ### Code Quality
@@ -233,68 +337,6 @@ make type-check
 make lint
 ```
 
-## Configuration
-
-### Environment Variables
-
-The library respects the following environment variables:
-
-- `STARDOG_VOICEBOX_API_TOKEN` - Voicebox API token
-- `STARDOG_CLOUD_ENDPOINT` - Custom API endpoint (default: https://cloud.stardog.com/api)
-
-### Getting Your API Token
-
-1. Log in to [Stardog Cloud](https://cloud.stardog.com)
-2. Navigate to your Voicebox application
-3. Go to Settings → API Token
-4. Copy your application API token
-
-## Error Handling
-
-The library provides custom exceptions for different error scenarios:
-
-```python
-from stardog_voicebox_langchain import (
-    VoiceboxException,           # Base exception
-    VoiceboxAuthenticationError, # Auth failures
-    VoiceboxAPIError,            # API errors
-    VoiceboxValidationError,     # Input validation errors
-    VoiceboxConnectionError      # Connection failures
-)
-
-try:
-    result = await client.async_ask("My question")
-except VoiceboxAuthenticationError:
-    print("Invalid API token")
-except VoiceboxValidationError:
-    print("Invalid input")
-except VoiceboxAPIError as e:
-    print(f"API error: {e.message}")
-```
-
-## How VoiceboxQAChain Works
-
-The `VoiceboxQAChain` demonstrates how to build enhanced workflows on top of Voicebox:
-
-### Simple Mode (No LLM)
-```
-User Question → VoiceboxAskRunnable → Answer + SPARQL Query
-```
-
-### Enhanced Mode (With LLM)
-```
-User Question → VoiceboxAskRunnable → (Answer, Query) → LLM Enhancement → Enhanced Answer
-```
-
-The chain shows:
-1. **Composability**: Combines Voicebox with LLM post-processing
-2. **Multi-turn Support**: Maintains conversation context
-3. **Flexibility**: Can be used directly or converted to a Runnable for LCEL
-4. **Optional Enhancement**: LLM can reformat/clarify answers while maintaining accuracy
-
-Users can create their own custom chains following this pattern.
-
-
 ## Contributing
 
 Contributions are welcome! Please:
@@ -302,7 +344,7 @@ Contributions are welcome! Please:
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes, add tests and run `make test` to verify
-4. Run `make ci` to verify
+4. Run `make ci` to verify all static code quality checks pass
 5. Submit a pull request
 
 

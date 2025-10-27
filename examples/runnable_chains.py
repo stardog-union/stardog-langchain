@@ -1,7 +1,14 @@
 """Example demonstrating Voicebox Runnables and Chains usage.
 
 This example shows how to use Voicebox runnables in LangChain Expression Language (LCEL)
-chains and the pre-built VoiceboxQAChain.
+chains for building custom workflows.
+
+Runnables support two initialization patterns:
+1. From environment variables (simple, recommended)
+2. With explicit VoiceboxClient (for custom configuration)
+
+Required Environment Variables:
+    SD_VOICEBOX_API_TOKEN: Your Voicebox application API token
 """
 
 import asyncio
@@ -12,38 +19,57 @@ from langchain_core.runnables import RunnablePassthrough
 from stardog_voicebox_langchain import (
     VoiceboxAskRunnable,
     VoiceboxClient,
-    VoiceboxGenerateQueryRunnable,
 )
 
 
 async def example_basic_runnable():
-    """Example 1: Basic runnable usage."""
-    print("=== Example 1: Basic Runnable ===\n")
+    """Example 1: Basic runnable usage loading keys from environment vars."""
+    print("=== Example 1: Basic Runnable (environment vars) ===\n")
 
-    api_token = os.getenv("STARDOG_VOICEBOX_API_TOKEN")
-    client = VoiceboxClient(api_token=api_token)
+    # Pattern 1: Runnables can auto-load from environment vars
+    if not os.getenv("SD_VOICEBOX_API_TOKEN"):
+        print("Please set SD_VOICEBOX_API_TOKEN environment variable")
+        return
 
-    # Create a runnable
-    ask_runnable = VoiceboxAskRunnable(client)
+    # Simple initialization - reads from SD_VOICEBOX_API_TOKEN
+    ask_runnable = VoiceboxAskRunnable()
 
     # Use it directly
-    result = await ask_runnable.ainvoke({"question": "What flights are delayed?"})
+    result = await ask_runnable.ainvoke(
+        {"question": "How many aerodromes are there in FL?"}
+    )
+
+    print(f"Answer: {result['answer']}")
+    print(f"Query: {result['sparql_query']}\n")
+
+
+async def example_explicit_client():
+    """Example 2: Using explicit client (programmatic configuration)."""
+    print("=== Example 2: Runnable with Explicit Client (advanced) ===\n")
+
+    # Pattern 2: For custom configuration, create explicit client
+    api_token = os.getenv("SD_VOICEBOX_API_TOKEN")
+    client = VoiceboxClient(
+        api_token=api_token,
+        client_id="custom-app",  # Custom client identifier
+    )
+
+    # Pass client to runnable
+    ask_runnable = VoiceboxAskRunnable(client=client)
+    result = await ask_runnable.ainvoke({"question": "Which airports are in Texas?"})
 
     print(f"Answer: {result['answer']}")
     print(f"Query: {result['sparql_query']}\n")
 
 
 async def example_lcel_chain():
-    """Example 2: Composing runnables with LCEL."""
-    print("=== Example 2: LCEL Chain Composition ===\n")
-
-    api_token = os.getenv("STARDOG_VOICEBOX_API_TOKEN")
-    client = VoiceboxClient(api_token=api_token)
+    """Example 3: Composing runnables with LCEL."""
+    print("=== Example 3: LCEL Chain Composition ===\n")
 
     # Build a chain: input -> Voicebox -> extract answer
     chain = (
         RunnablePassthrough()
-        | VoiceboxAskRunnable(client)
+        | VoiceboxAskRunnable()  # Reads from environment
         | (lambda x: f"Answer: {x['answer']}\n\nQuery used: {x['sparql_query']}")
     )
 
@@ -52,38 +78,17 @@ async def example_lcel_chain():
     print()
 
 
-async def example_query_generation_chain():
-    """Example 3: Query generation chain."""
-    print("=== Example 3: Query Generation Chain ===\n")
-
-    api_token = os.getenv("STARDOG_VOICEBOX_API_TOKEN")
-    client = VoiceboxClient(api_token=api_token)
-
-    # Create a chain that generates queries from natural language
-    query_chain = VoiceboxGenerateQueryRunnable(client) | (lambda x: x["sparql_query"])
-
-    questions = [
-        "What flights depart from SFO?",
-        "Show me all airlines",
-        "Which flights are delayed?",
-    ]
-
-    for question in questions:
-        query = await query_chain.ainvoke({"question": question})
-        print(f"Question: {question}")
-        print(f"Generated Query: {query}\n")
-
-
 async def main():
     """Run all examples."""
-    api_token = os.getenv("STARDOG_VOICEBOX_API_TOKEN")
+    api_token = os.getenv("SD_VOICEBOX_API_TOKEN")
     if not api_token:
-        print("Please set STARDOG_VOICEBOX_API_TOKEN environment variable")
+        print("Please set SD_VOICEBOX_API_TOKEN environment variable")
+        print("Example: export SD_VOICEBOX_API_TOKEN='your-token-here'")
         return
 
     await example_basic_runnable()
+    await example_explicit_client()
     await example_lcel_chain()
-    await example_query_generation_chain()
 
     print("=== All Examples Complete ===")
 

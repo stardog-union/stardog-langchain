@@ -51,11 +51,14 @@ def mock_cloud_client(
     mock_voicebox_settings, mock_voicebox_answer, mock_voicebox_query_response
 ):
     """Mock pystardog cloud client."""
-    with patch(
-        "stardog_voicebox_langchain.voicebox_client.StardogClient"
-    ) as mock_sync_client, patch(
-        "stardog_voicebox_langchain.voicebox_client.StardogAsyncClient"
-    ) as mock_async_client:
+    with (
+        patch(
+            "stardog_voicebox_langchain.voicebox_client.StardogClient"
+        ) as mock_sync_client,
+        patch(
+            "stardog_voicebox_langchain.voicebox_client.StardogAsyncClient"
+        ) as mock_async_client,
+    ):
         # Create mock Voicebox app for async client
         mock_async_voicebox_app = MagicMock()
         mock_async_voicebox_app.async_settings = AsyncMock(
@@ -93,11 +96,7 @@ def mock_cloud_client(
 
 @pytest.fixture
 def voicebox_client(mock_cloud_client):
-    """Create a VoiceboxClient with mocked backend.
-
-    Note: mock_cloud_client is passed as a parameter to ensure the patch context
-    is active when VoiceboxClient.__init__() runs. This ensures StardogClient and
-    StardogAsyncClient are mocked instead of creating real connections.
+    """Create a VoiceboxClient with mocked backend
     """
     return VoiceboxClient(
         api_token="test-token",
