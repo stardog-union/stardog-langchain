@@ -9,6 +9,14 @@ Runnables support two initialization patterns:
 
 Required Environment Variables:
     SD_VOICEBOX_API_TOKEN: Your Voicebox application API token
+
+Note:
+    This example uses questions from the Flight Planning knowledge kit.
+    To run this example successfully, you need to either:
+    1. Install the Flight Planning kit to your Stardog instance:
+       https://cloud.stardog.com/kits/default:flight_planning:1.0
+    2. Modify the questions to match your configured database domain. To create an API token for a database,
+       refer to 'Getting your API token' under the 'Quick Start' section of the README
 """
 
 import asyncio

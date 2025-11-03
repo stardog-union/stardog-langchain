@@ -114,3 +114,11 @@ def sample_question():
 def sample_conversation_id():
     """Sample conversation ID for testing."""
     return "conv-test-123"
+
+
+@pytest.fixture(autouse=True)
+def setup_env_for_standard_tests(mock_cloud_client, monkeypatch):
+    """Setup environment variables for LangChain standard tests."""
+    monkeypatch.setenv("SD_VOICEBOX_API_TOKEN", "test-token-for-standard-tests")
+    monkeypatch.setenv("SD_VOICEBOX_CLIENT_ID", "test-client-standard")
+    yield

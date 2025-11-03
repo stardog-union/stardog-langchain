@@ -38,7 +38,8 @@ dev = [
     "isort==6.0.1",
     "mypy==1.17.1",
     "flake8==7.3.0",
-    "langchain==1.0.0",  # For testing full integration
+    "langchain==1.0.0",
+    "langchain-tests==0.3.21",
 ]
 
 

@@ -8,6 +8,14 @@ This is the recommended pattern for agent workflows and production usage.
 
 Required Environment Variables:
     SD_VOICEBOX_API_TOKEN: Your Voicebox application API token
+
+Note:
+    This example uses questions from the Flight Planning knowledge kit.
+    To run this example successfully, you need to either:
+    1. Install the Flight Planning kit to your Stardog instance:
+       https://cloud.stardog.com/kits/default:flight_planning:1.0
+    2. Modify the questions to match your configured database domain. To create an api token for a database,
+       refer to 'Getting your API token' under the 'Quick Start' section of the README
 """
 
 import asyncio
@@ -38,14 +46,14 @@ async def main():
 
     # Tools automatically load keys from environment variables
     print("Initializing tools...")
-    seting_tool = VoiceboxSettingsTool()
+    setting_tool = VoiceboxSettingsTool()
     ask_tool = VoiceboxAskTool()
     query_tool = VoiceboxGenerateQueryTool()
     print("✓ Tools initialized successfully\n")
 
     # Example 1: Fetch the application settings
     print("Example 1: Fetching Voicebox settings")
-    settings = await seting_tool._arun()
+    settings = await setting_tool._arun()
     print(f"Voicebox settings: {settings}\n")
 
     # Example 2: Ask a question and get an answer
