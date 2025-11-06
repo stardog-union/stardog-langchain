@@ -2,7 +2,7 @@
 
 from langchain_tests.unit_tests.tools import ToolsUnitTests
 
-from stardog_voicebox_langchain import (
+from stardog_langchain.voicebox import (
     VoiceboxAskTool,
     VoiceboxGenerateQueryTool,
     VoiceboxSettingsTool,

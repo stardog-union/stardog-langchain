@@ -2,7 +2,7 @@ from typing import Any, Optional
 
 from langchain_core.runnables import Runnable, RunnableConfig
 
-from .voicebox_client import VoiceboxClient
+from .client import VoiceboxClient
 
 
 class VoiceboxSettingsRunnable(Runnable[dict[str, Any], dict[str, Any]]):

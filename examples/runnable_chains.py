@@ -24,7 +24,7 @@ import os
 
 from langchain_core.runnables import RunnablePassthrough
 
-from stardog_voicebox_langchain import (
+from stardog_langchain.voicebox import (
     VoiceboxAskRunnable,
     VoiceboxClient,
 )

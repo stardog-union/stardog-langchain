@@ -4,7 +4,7 @@
 export UV_PROJECT_ENVIRONMENT := venv
 
 # Source directories for formatting, linting, etc.
-SRC_DIRS := stardog_voicebox_langchain tests examples
+SRC_DIRS := stardog_langchain tests examples
 
 # Default target
 .DEFAULT_GOAL := help
@@ -33,13 +33,13 @@ lint: ## Run flake8 linter
 	uv run flake8 $(SRC_DIRS)
 
 type-check: ## Run mypy type checker
-	uv run mypy stardog_voicebox_langchain
+	uv run mypy stardog_langchain
 
 test: ## Run tests
 	uv run pytest
 
 test-cov: ## Run tests with coverage report
-	uv run pytest --cov=stardog_voicebox_langchain --cov-report=html --cov-report=term-missing --cov-fail-under=90
+	uv run pytest --cov=stardog_langchain --cov-report=html --cov-report=term-missing --cov-fail-under=90
 
 ci: format-check lint type-check test-cov ## Run all CI checks (format, lint, type-check, test with coverage)
 

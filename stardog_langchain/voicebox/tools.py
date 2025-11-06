@@ -3,12 +3,12 @@ from typing import Any, Optional, Type
 from langchain_core.tools import BaseTool
 from pydantic import BaseModel, Field, PrivateAttr
 
+from .client import VoiceboxClient
 from .runnables import (
     VoiceboxAskRunnable,
     VoiceboxGenerateQueryRunnable,
     VoiceboxSettingsRunnable,
 )
-from .voicebox_client import VoiceboxClient
 
 
 # Input schemas for tools

@@ -5,7 +5,7 @@ import os
 import pytest
 from langchain_tests.integration_tests.tools import ToolsIntegrationTests
 
-from stardog_voicebox_langchain import (
+from stardog_langchain.voicebox import (
     VoiceboxAskTool,
     VoiceboxGenerateQueryTool,
     VoiceboxSettingsTool,

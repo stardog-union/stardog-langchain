@@ -2,7 +2,7 @@
 
 import pytest
 
-from stardog_voicebox_langchain import (
+from stardog_langchain.voicebox import (
     ENV_VOICEBOX_API_TOKEN,
     VoiceboxAskRunnable,
     VoiceboxGenerateQueryRunnable,

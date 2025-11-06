@@ -1,14 +1,14 @@
 [project]
-name = "stardog-voicebox-langchain"
+name = "stardog-langchain"
 version = "0.1.0"
-description = "LangChain integration for Stardog Voicebox"
+description = "LangChain integrations for Stardog"
 authors = [
     {name = "Stardog Union", email = "support@stardog.com"}
 ]
 readme = "README.md"
-homepage = "https://github.com/stardog-union/stardog-voicebox-langchain"
-repository = "https://github.com/stardog-union/stardog-voicebox-langchain"
-documentation = "https://github.com/stardog-union/stardog-voicebox-langchain#readme"
+homepage = "https://github.com/stardog-union/stardog-langchain"
+repository = "https://github.com/stardog-union/stardog-langchain"
+documentation = "https://github.com/stardog-union/stardog-langchain#readme"
 requires-python = "~=3.12.0"
 license = {text = "Apache-2.0"}
 keywords = ["stardog", "voicebox", "langchain", "sparql", "knowledge-graph"]
@@ -54,7 +54,7 @@ python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
 addopts = [
-    "--cov=stardog_voicebox_langchain",
+    "--cov=stardog_langchain",
     "--cov-report=html",
     "--cov-report=term-missing",
     "-v"
@@ -65,3 +65,6 @@ profile = "black"
 
 [tool.mypy]
 ignore_missing_imports = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["stardog_langchain"]
