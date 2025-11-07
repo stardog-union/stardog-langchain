@@ -57,7 +57,7 @@ export SD_VOICEBOX_API_TOKEN="your-voicebox-api-token"
 2. Click on your profile icon and select **Manage API Keys**.
 3. Create a new application and generate a secret.
 4. Copy the API token and keep it secure.
-5. For more details, see Stardog Voicebox API access.
+5. For more details, see [Stardog Voicebox API access](https://docs.stardog.com/voicebox/voicebox-dev-guide/#api-access).
 
 **Optional Environment Variables:**
 ```bash
