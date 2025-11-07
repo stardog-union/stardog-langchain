@@ -1,5 +1,5 @@
 [project]
-name = "stardog-langchain"
+name = "langchain-stardog"
 version = "0.1.0"
 description = "LangChain integrations for Stardog"
 authors = [
@@ -54,7 +54,7 @@ python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
 addopts = [
-    "--cov=stardog_langchain",
+    "--cov=langchain_stardog",
     "--cov-report=html",
     "--cov-report=term-missing",
     "-v"
@@ -67,4 +67,4 @@ profile = "black"
 ignore_missing_imports = true
 
 [tool.hatch.build.targets.wheel]
-packages = ["stardog_langchain"]
+packages = ["langchain_stardog"]
