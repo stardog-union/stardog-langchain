@@ -54,9 +54,10 @@ export SD_VOICEBOX_API_TOKEN="your-voicebox-api-token"
 
 **Getting Your API Token:**
 1. Log in to [Stardog Cloud](https://cloud.stardog.com)
-2. Navigate to your Voicebox application
-3. Go to Settings → API Token
-4. Copy your application API token
+2. Click on your profile icon and select **Manage API Keys**.
+3. Create a new application and generate a secret.
+4. Copy the API token and keep it secure.
+5. For more details, see Stardog Voicebox API access.
 
 **Optional Environment Variables:**
 ```bash
