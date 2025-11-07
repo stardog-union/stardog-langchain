@@ -4,7 +4,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from stardog_langchain.voicebox import VoiceboxClient
+from langchain_stardog.voicebox import VoiceboxClient
 
 
 @pytest.fixture
@@ -52,9 +52,9 @@ def mock_cloud_client(
 ):
     """Mock pystardog cloud client."""
     with (
-        patch("stardog_langchain.voicebox.client.StardogClient") as mock_sync_client,
+        patch("langchain_stardog.voicebox.client.StardogClient") as mock_sync_client,
         patch(
-            "stardog_langchain.voicebox.client.StardogAsyncClient"
+            "langchain_stardog.voicebox.client.StardogAsyncClient"
         ) as mock_async_client,
     ):
         # Create mock Voicebox app for async client

@@ -35,7 +35,7 @@ except ImportError as error:
     print("pip install langchain langchain-aws")
     exit(1)
 
-from stardog_langchain.voicebox import (
+from langchain_stardog.voicebox import (
     VoiceboxAskTool,
     VoiceboxSettingsTool,
 )

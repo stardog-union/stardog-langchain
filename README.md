@@ -1,7 +1,7 @@
 # Stardog LangChain Integration
 
-[![PyPI version](https://badge.fury.io/py/stardog-langchain.svg)](https://badge.fury.io/py/stardog-langchain)
-[![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
+[![PyPI version](https://badge.fury.io/py/langchain-stardog.svg)](https://badge.fury.io/py/langchain-stardog)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 LangChain integration for Stardog Voicebox - enabling natural language querying over your enterprise data using LangChain runnables and tools.
@@ -31,7 +31,7 @@ LangChain integration for Stardog Voicebox - enabling natural language querying 
 
 ## Requirements
 
-- Python 3.12 
+- Python 3.10+ 
 - A Stardog Cloud account with a Voicebox application
 - Voicebox API token (process to obtain explained below)
 - uv: a python package manager for development and contributions ([uv](https://github.com/astral-sh/uv))
@@ -39,7 +39,7 @@ LangChain integration for Stardog Voicebox - enabling natural language querying 
 ## Installation
 
 ```bash
-pip install stardog-langchain
+pip install langchain-stardog
 ```
 
 ## Quick Start
@@ -69,7 +69,7 @@ export SD_CLOUD_ENDPOINT="https://cloud.stardog.com/api"  # Custom endpoint (opt
 Tools are designed for agent workflows and automatically load credentials from environment variables:
 
 ```python
-from stardog_langchain.voicebox import VoiceboxAskTool
+from langchain_stardog.voicebox import VoiceboxAskTool
 
 # Tools automatically load credentials from SD_VOICEBOX_API_TOKEN
 ask_tool = VoiceboxAskTool()
@@ -89,7 +89,7 @@ Runnables support two initialization patterns:
 
 ```python
 from langchain_core.runnables import RunnablePassthrough
-from stardog_langchain.voicebox import VoiceboxAskRunnable
+from langchain_stardog.voicebox import VoiceboxAskRunnable
 
 # Automatically loads from SD_VOICEBOX_API_TOKEN
 chain = (
@@ -105,7 +105,7 @@ result = await chain.ainvoke({"question": "Show me airports in Texas"})
 
 ```python
 from langchain_core.runnables import RunnablePassthrough
-from stardog_langchain.voicebox import VoiceboxClient, VoiceboxAskRunnable
+from langchain_stardog.voicebox import VoiceboxClient, VoiceboxAskRunnable
 
 # Create client for custom configuration
 client = VoiceboxClient(

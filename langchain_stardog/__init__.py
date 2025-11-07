@@ -6,11 +6,11 @@ Submodules:
     voicebox: Natural language querying of knowledge graphs via Voicebox
 
 Example:
-    >>> from stardog_langchain.voicebox import VoiceboxAskTool
+    >>> from langchain_stardog.voicebox import VoiceboxAskTool
     >>> tool = VoiceboxAskTool()
 """
 
-from stardog_langchain.voicebox import (
+from langchain_stardog.voicebox import (
     VoiceboxAskRunnable,
     VoiceboxAskTool,
     VoiceboxClient,

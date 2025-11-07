@@ -21,7 +21,7 @@ Note:
 import asyncio
 import os
 
-from stardog_langchain.voicebox import (
+from langchain_stardog.voicebox import (
     VoiceboxAskTool,
     VoiceboxGenerateQueryTool,
     VoiceboxSettingsTool,

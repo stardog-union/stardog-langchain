@@ -2,7 +2,7 @@
 
 import pytest
 
-from stardog_langchain.voicebox import (
+from langchain_stardog.voicebox import (
     VoiceboxAuthenticationError,
     VoiceboxClient,
     VoiceboxValidationError,
@@ -103,7 +103,7 @@ class TestVoiceboxClientAsyncMethods:
         """Test async_get_settings raises VoiceboxAPIError on failure."""
         from unittest.mock import AsyncMock
 
-        from stardog_langchain.voicebox import VoiceboxAPIError
+        from langchain_stardog.voicebox import VoiceboxAPIError
 
         # Make the async client raise an exception
         mock_sync, mock_async = mock_cloud_client
@@ -121,7 +121,7 @@ class TestVoiceboxClientAsyncMethods:
         """Test async_ask raises VoiceboxAPIError on failure."""
         from unittest.mock import AsyncMock
 
-        from stardog_langchain.voicebox import VoiceboxAPIError
+        from langchain_stardog.voicebox import VoiceboxAPIError
 
         # Make the async client raise an exception
         mock_sync, mock_async = mock_cloud_client
@@ -139,7 +139,7 @@ class TestVoiceboxClientAsyncMethods:
         """Test async_generate_query raises VoiceboxAPIError on failure."""
         from unittest.mock import AsyncMock
 
-        from stardog_langchain.voicebox import VoiceboxAPIError
+        from langchain_stardog.voicebox import VoiceboxAPIError
 
         # Make the async client raise an exception
         mock_sync, mock_async = mock_cloud_client
@@ -181,7 +181,7 @@ class TestVoiceboxClientSyncMethods:
         """Test get_settings raises VoiceboxAPIError on failure."""
         from unittest.mock import MagicMock
 
-        from stardog_langchain.voicebox import VoiceboxAPIError
+        from langchain_stardog.voicebox import VoiceboxAPIError
 
         # Make the sync client raise an exception
         mock_sync, mock_async = mock_cloud_client
@@ -196,7 +196,7 @@ class TestVoiceboxClientSyncMethods:
         """Test ask raises VoiceboxAPIError on failure."""
         from unittest.mock import MagicMock
 
-        from stardog_langchain.voicebox import VoiceboxAPIError
+        from langchain_stardog.voicebox import VoiceboxAPIError
 
         # Make the sync client raise an exception
         mock_sync, mock_async = mock_cloud_client
@@ -213,7 +213,7 @@ class TestVoiceboxClientSyncMethods:
         """Test generate_query raises VoiceboxAPIError on failure."""
         from unittest.mock import MagicMock
 
-        from stardog_langchain.voicebox import VoiceboxAPIError
+        from langchain_stardog.voicebox import VoiceboxAPIError
 
         # Make the sync client raise an exception
         mock_sync, mock_async = mock_cloud_client
