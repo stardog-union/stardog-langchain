@@ -48,7 +48,6 @@ class VoiceboxClient:
         self.endpoint = endpoint
         self.auth_token_override = auth_token_override
 
-        self._sync_cloud_client = StardogClient(base_url=self.endpoint)
 
     @classmethod
     def from_env(
@@ -249,7 +248,8 @@ class VoiceboxClient:
             VoiceboxAPIError: If the API request fails
         """
         try:
-            voicebox_app = self._sync_cloud_client.voicebox_app(
+            sync_client = StardogClient(base_url=self.endpoint)
+            voicebox_app = sync_client.voicebox_app(
                 app_api_token=self.api_token, client_id=self.client_id
             )
             settings = voicebox_app.settings()
@@ -286,7 +286,8 @@ class VoiceboxClient:
         self._validate_question(question)
 
         try:
-            voicebox_app = self._sync_cloud_client.voicebox_app(
+            sync_client = StardogClient(base_url=self.endpoint)
+            voicebox_app = sync_client.voicebox_app(
                 app_api_token=self.api_token, client_id=self.client_id
             )
             answer = voicebox_app.ask(
@@ -330,7 +331,8 @@ class VoiceboxClient:
         self._validate_question(question)
 
         try:
-            voicebox_app = self._sync_cloud_client.voicebox_app(
+            sync_client = StardogClient(base_url=self.endpoint)
+            voicebox_app = sync_client.voicebox_app(
                 app_api_token=self.api_token, client_id=self.client_id
             )
             response = voicebox_app.generate_query(
