@@ -237,11 +237,11 @@ client = VoiceboxClient(
 
 ## Examples
 
-Check out the [`examples/`](examples/) directory for basic examples on how to use the library:
+Check out the [`examples/`](https://github.com/stardog-union/stardog-langchain/tree/main/examples/) directory for basic examples on how to use the library:
 
-- [`direct_tool_usage.py`](examples/direct_tool_usage.py) - Direct tool usage and multi-turn conversations
-- [`agent_integration.py`](examples/agent_integration.py) - Agent integration using AWS Bedrock
-- [`runnable_chains.py`](examples/runnable_chains.py) - LCEL chains with runnables
+- [`direct_tool_usage.py`](https://github.com/stardog-union/stardog-langchain/blob/main/examples/direct_tool_usage.py) - Direct tool usage and multi-turn conversations
+- [`agent_integration.py`](https://github.com/stardog-union/stardog-langchain/blob/main/examples/agent_integration.py) - Agent integration using AWS Bedrock
+- [`runnable_chains.py`](https://github.com/stardog-union/stardog-langchain/blob/main/examples/runnable_chains.py) - LCEL chains with runnables
 
 ## Development
 
@@ -250,8 +250,8 @@ Check out the [`examples/`](examples/) directory for basic examples on how to us
 Clone the repository and install dependencies:
 
 ```bash
-git clone https://github.com/stardog-union/voicebox-langchain-integration.git
-cd voicebox-langchain-integration
+git clone https://github.com/stardog-union/stardog-langchain.git
+cd stardog-langchain
 make install-dev
 ```
 
