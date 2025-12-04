@@ -183,7 +183,9 @@ class VoiceboxClient:
             return {
                 "answer": answer.content,
                 "interpreted_question": answer.interpreted_question,
+                "sparql_query": answer.query,
                 "conversation_id": answer.conversation_id,
+                "message_id": answer.message_id,
             }
         except VoiceboxValidationError:
             raise
@@ -295,7 +297,9 @@ class VoiceboxClient:
             return {
                 "answer": answer.content,
                 "interpreted_question": answer.interpreted_question,
+                "sparql_query": answer.query,
                 "conversation_id": answer.conversation_id,
+                "message_id": answer.message_id,
             }
         except VoiceboxValidationError:
             raise
