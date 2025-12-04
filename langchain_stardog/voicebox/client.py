@@ -48,9 +48,7 @@ class VoiceboxClient:
         self.endpoint = endpoint
         self.auth_token_override = auth_token_override
 
-        # Initialize both sync and async Stardog Cloud clients
         self._sync_cloud_client = StardogClient(base_url=self.endpoint)
-        self._async_cloud_client = StardogAsyncClient(base_url=self.endpoint)
 
     @classmethod
     def from_env(
@@ -111,6 +109,18 @@ class VoiceboxClient:
             endpoint=resolved_endpoint,
         )
 
+    def _validate_question(self, question: str) -> None:
+        """Validate that question is not empty.
+
+        Args:
+            question: Question to validate
+
+        Raises:
+            VoiceboxValidationError: If question is empty
+        """
+        if not question or not question.strip():
+            raise VoiceboxValidationError("Question cannot be empty")
+
     # Async methods
     async def async_get_settings(self) -> dict[str, Any]:
         """Get Voicebox application settings asynchronously.
@@ -122,7 +132,8 @@ class VoiceboxClient:
             VoiceboxAPIError: If the API request fails
         """
         try:
-            voicebox_app = self._async_cloud_client.voicebox_app(
+            async_client = StardogAsyncClient(base_url=self.endpoint)
+            voicebox_app = async_client.voicebox_app(
                 app_api_token=self.api_token, client_id=self.client_id
             )
             settings = await voicebox_app.async_settings()
@@ -156,11 +167,11 @@ class VoiceboxClient:
             VoiceboxValidationError: If the question is empty
             VoiceboxAPIError: If the API request fails
         """
-        if not question or not question.strip():
-            raise VoiceboxValidationError("Question cannot be empty")
+        self._validate_question(question)
 
         try:
-            voicebox_app = self._async_cloud_client.voicebox_app(
+            async_client = StardogAsyncClient(base_url=self.endpoint)
+            voicebox_app = async_client.voicebox_app(
                 app_api_token=self.api_token, client_id=self.client_id
             )
             answer = await voicebox_app.async_ask(
@@ -199,11 +210,11 @@ class VoiceboxClient:
             VoiceboxValidationError: If the question is empty
             VoiceboxAPIError: If the API request fails
         """
-        if not question or not question.strip():
-            raise VoiceboxValidationError("Question cannot be empty")
+        self._validate_question(question)
 
         try:
-            voicebox_app = self._async_cloud_client.voicebox_app(
+            async_client = StardogAsyncClient(base_url=self.endpoint)
+            voicebox_app = async_client.voicebox_app(
                 app_api_token=self.api_token, client_id=self.client_id
             )
             response = await voicebox_app.async_generate_query(
@@ -269,8 +280,7 @@ class VoiceboxClient:
             VoiceboxValidationError: If the question is empty
             VoiceboxAPIError: If the API request fails
         """
-        if not question or not question.strip():
-            raise VoiceboxValidationError("Question cannot be empty")
+        self._validate_question(question)
 
         try:
             voicebox_app = self._sync_cloud_client.voicebox_app(
@@ -285,9 +295,7 @@ class VoiceboxClient:
             return {
                 "answer": answer.content,
                 "interpreted_question": answer.interpreted_question,
-                "sparql_query": answer.query,
                 "conversation_id": answer.conversation_id,
-                "message_id": answer.message_id,
             }
         except VoiceboxValidationError:
             raise
@@ -314,8 +322,7 @@ class VoiceboxClient:
             VoiceboxValidationError: If the question is empty
             VoiceboxAPIError: If the API request fails
         """
-        if not question or not question.strip():
-            raise VoiceboxValidationError("Question cannot be empty")
+        self._validate_question(question)
 
         try:
             voicebox_app = self._sync_cloud_client.voicebox_app(
