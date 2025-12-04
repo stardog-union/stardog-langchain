@@ -48,7 +48,6 @@ class VoiceboxClient:
         self.endpoint = endpoint
         self.auth_token_override = auth_token_override
 
-
     @classmethod
     def from_env(
         cls,
