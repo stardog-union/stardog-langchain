@@ -229,6 +229,7 @@ class VoiceboxClient:
                 "sparql_query": response.sparql_query,
                 "interpreted_question": response.interpreted_question,
                 "conversation_id": response.conversation_id,
+                "message_id": response.message_id,
             }
         except VoiceboxValidationError:
             raise
