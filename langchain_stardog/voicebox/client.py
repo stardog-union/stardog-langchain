@@ -183,7 +183,7 @@ class VoiceboxClient:
             return {
                 "answer": answer.content,
                 "interpreted_question": answer.interpreted_question,
-                "sparql_query": answer.query,
+                "sparql_query": answer.sparql_query,
                 "conversation_id": answer.conversation_id,
                 "message_id": answer.message_id,
             }
@@ -297,7 +297,7 @@ class VoiceboxClient:
             return {
                 "answer": answer.content,
                 "interpreted_question": answer.interpreted_question,
-                "sparql_query": answer.query,
+                "sparql_query": answer.sparql_query,
                 "conversation_id": answer.conversation_id,
                 "message_id": answer.message_id,
             }
@@ -339,7 +339,7 @@ class VoiceboxClient:
                 stardog_auth_token_override=self.auth_token_override,
             )
             return {
-                "sparql_query": response.query,
+                "sparql_query": response.sparql_query,
                 "interpreted_question": response.interpreted_question,
                 "conversation_id": response.conversation_id,
                 "message_id": response.message_id,
